@@ -1,6 +1,8 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ShoppingBag, Calendar, Users, Stethoscope, Star, MapPin, Clock, Bell, ExternalLink, Video } from "lucide-react"
+import { ShoppingBag, Calendar, Stethoscope, Star, MapPin, Clock } from "lucide-react"
 
 export function ForYouTab() {
   const marketplaceItems = [
@@ -82,7 +84,7 @@ export function ForYouTab() {
   ]
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-white w-full">
       {/* Header */}
       <div className="flex-shrink-0 text-center p-4 bg-white border-b border-gray-200">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">For You</h1>
@@ -90,162 +92,111 @@ export function ForYouTab() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto p-3 space-y-4 w-full">
         {/* Curated Marketplace */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-purple-500" />
-              Curated Marketplace
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ShoppingBag className="w-4 h-4 text-purple-500" />
+              Marketplace
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
+          <CardContent className="pt-0">
+            <div className="space-y-2">
               {marketplaceItems.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-3 bg-white rounded-lg border border-gray-200 hover:border-purple-300 transition-colors"
-                >
-                  <div className="text-3xl">{item.image}</div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                    <p className="text-sm text-gray-600">{item.brand}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm text-gray-600">{item.rating}</span>
+                <div key={index} className="flex gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div className="text-2xl flex-shrink-0">{item.image}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-900">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.brand}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs font-semibold text-gray-900">{item.price}</span>
+                      <div className="flex items-center gap-0.5">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs text-gray-600">{item.rating}</span>
                       </div>
-                      <span className="text-xs text-gray-400">•</span>
-                      <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                        {item.category}
-                      </span>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold text-gray-900">{item.price}</div>
-                    <Button size="sm" className="mt-2">
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Buy
-                    </Button>
                   </div>
                 </div>
               ))}
             </div>
-            <Button variant="outline" className="w-full mt-4 bg-transparent">
-              View All Products
+            <Button className="w-full mt-3 h-9 text-sm">
+              <ShoppingBag className="w-3 h-3 mr-1" />
+              Browse All
             </Button>
           </CardContent>
         </Card>
 
-        {/* Micro-Pods & Live Calendar */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-500" />
+        {/* Upcoming Events */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Calendar className="w-4 h-4 text-blue-500" />
               Upcoming Events
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pt-0">
+            <div className="space-y-2">
               {upcomingEvents.map((event, index) => (
-                <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                      <p className="text-sm text-gray-600">{event.expert}</p>
+                <div key={index} className="p-2.5 bg-gray-50 rounded-lg">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-900 line-clamp-1">{event.title}</p>
+                      <p className="text-xs text-gray-500">{event.type}</p>
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{event.type}</span>
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded whitespace-nowrap flex-shrink-0">
+                      {event.attendees}
+                    </span>
                   </div>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {event.date}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {event.attendees} attending
-                    </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+                    <Clock className="w-3 h-3" />
+                    {event.date}
                   </div>
-
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
-                      <Video className="w-4 h-4 mr-2" />
-                      Join Event
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Bell className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <Button size="sm" className="w-full h-8 text-xs">
+                    Join Event
+                  </Button>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Doctors Directory Preview */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Stethoscope className="w-5 h-5 text-green-500" />
-              Doctors Directory
-              <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full ml-2">Preview</span>
+        {/* Doctors Directory */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Stethoscope className="w-4 h-4 text-red-500" />
+              Doctors
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="pt-0">
+            <div className="space-y-2">
               {doctors.map((doctor, index) => (
-                <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{doctor.name}</h3>
-                      <p className="text-sm text-gray-600">{doctor.specialty}</p>
-                      <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                        <MapPin className="w-4 h-4" />
-                        <span>
-                          {doctor.location} • {doctor.distance}
-                        </span>
-                      </div>
+                <div key={index} className="p-2.5 bg-gray-50 rounded-lg">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-900">{doctor.name}</p>
+                      <p className="text-xs text-gray-500">{doctor.specialty}</p>
                     </div>
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 mb-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{doctor.rating}</span>
-                      </div>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          doctor.accepting ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {doctor.accepting ? "Accepting patients" : "Not accepting"}
-                      </span>
+                    <div className="flex items-center gap-0.5 text-xs flex-shrink-0">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      {doctor.rating}
                     </div>
                   </div>
-
+                  <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+                    <MapPin className="w-3 h-3" />
+                    {doctor.location} • {doctor.distance}
+                  </div>
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="w-full mt-3 bg-transparent"
+                    className="w-full h-8 text-xs"
                     disabled={!doctor.accepting}
+                    variant={doctor.accepting ? "default" : "outline"}
                   >
-                    <Bell className="w-4 h-4 mr-2" />
-                    {doctor.accepting ? "Contact Doctor" : "Notify Me When Available"}
+                    {doctor.accepting ? "Notify Me" : "Closed"}
                   </Button>
                 </div>
               ))}
-            </div>
-
-            <div className="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
-              <p className="text-sm text-orange-800 text-center">
-                Full directory access coming soon! Get notified when it launches.
-              </p>
-              <Button
-                variant="outline"
-                className="w-full mt-2 border-orange-300 text-orange-700 hover:bg-orange-100 bg-transparent"
-              >
-                <Bell className="w-4 h-4 mr-2" />
-                Notify Me
-              </Button>
             </div>
           </CardContent>
         </Card>

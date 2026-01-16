@@ -2,14 +2,12 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
-import { CheckCircle, ArrowRight, ArrowLeft, Heart, Sparkles } from "lucide-react"
+import { CheckCircle, ArrowRight, ArrowLeft } from "lucide-react"
 
-// Import custom components
 import { ChatInterfaceMockup } from "@/components/onboarding/chat-interface-mockup"
 import { StatisticsMockup } from "@/components/onboarding/statistics-mockup"
 import { PrivacyMockup } from "@/components/onboarding/privacy-mockup"
@@ -217,6 +215,7 @@ export default function MenopauseQuestionnaire() {
   const [activeTab, setActiveTab] = useState("ask-empress")
   const [onboardingStep, setOnboardingStep] = useState(0)
   const [recommendations, setRecommendations] = useState<Recommendations | null>(null)
+  const [isAssessmentComplete, setIsAssessmentComplete] = useState(false)
 
   const handleRadioAnswer = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }))
@@ -251,11 +250,10 @@ export default function MenopauseQuestionnaire() {
     const persona = determinePersona(answers)
     const recs = getRecommendations(persona, answers)
     setRecommendations(recs)
-    setShowResults(true)
+    setIsAssessmentComplete(true)
   }
 
   const startOnboarding = () => {
-    setShowResults(false)
     setShowOnboarding(true)
     setOnboardingStep(0)
   }
@@ -264,7 +262,6 @@ export default function MenopauseQuestionnaire() {
     if (onboardingStep < 2) {
       setOnboardingStep((prev) => prev + 1)
     } else {
-      // Complete onboarding and show main app
       setShowOnboarding(false)
       setShowApp(true)
     }
@@ -277,6 +274,7 @@ export default function MenopauseQuestionnaire() {
     setCurrentQuestion(0)
     setAnswers({})
     setRecommendations(null)
+    setIsAssessmentComplete(false)
   }
 
   const determinePersona = (answers: Answers): string => {
@@ -478,14 +476,14 @@ export default function MenopauseQuestionnaire() {
           "Aim for 150 minutes of moderate exercise per week",
           "Include balance and coordination exercises",
           "Try new activities to stay motivated",
-          "Listen to your body and adjust intensity",
+          "Walk or hike in nature regularly",
         ],
         lifestyle: [
-          "Prioritize stress management techniques",
-          "Maintain strong social connections",
-          "Get regular health check-ups",
-          "Practice gratitude and positive thinking",
-          "Engage in hobbies and activities you enjoy",
+          "Maintain regular health check-ups",
+          "Practice stress management daily",
+          "Foster meaningful relationships",
+          "Pursue hobbies and personal interests",
+          "Get 7-9 hours of quality sleep nightly",
         ],
       },
     }
@@ -493,205 +491,129 @@ export default function MenopauseQuestionnaire() {
     return baseRecs[persona as keyof typeof baseRecs] || baseRecs.holistic_wellness
   }
 
-  const progress = ((currentQuestion + 1) / questions.length) * 100
-  const currentQ = questions[currentQuestion]
-  const isAnswered =
-    currentQ.type === "radio"
-      ? !!answers[currentQ.id]
-      : Array.isArray(answers[currentQ.id]) && (answers[currentQ.id] as string[]).length > 0
-
-  // Main App View
   if (showApp) {
     return (
-      <div className="h-screen flex flex-col bg-white">
-        {/* App Header */}
-        <div className="bg-white border-b border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900">Empress Wellness</h1>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Heart className="w-4 h-4 text-white" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        <div className="flex-1 overflow-hidden">
-          {activeTab === "ask-empress" && <AskEmpressTab />}
-          {activeTab === "tools" && <ToolsTab />}
-          {activeTab === "for-you" && <ForYouTab />}
-          {activeTab === "plan" && <PlanTab recommendations={recommendations} onRetakeAssessment={retakeAssessment} />}
-          {activeTab === "profile" && <ProfileTab />}
-        </div>
-
-        {/* Tab Navigation */}
+      <div className="w-full h-screen bg-white flex flex-col">
+        {activeTab === "ask-empress" && <AskEmpressTab />}
+        {activeTab === "tools" && <ToolsTab />}
+        {activeTab === "for-you" && <ForYouTab />}
+        {activeTab === "plan" && <PlanTab recommendations={recommendations} onRetake={retakeAssessment} />}
+        {activeTab === "profile" && <ProfileTab />}
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     )
   }
 
-  // Onboarding screens
   if (showOnboarding) {
-    const onboardingScreens = [
-      {
-        component: <ChatInterfaceMockup />,
-        heading: "Cope with anxiety",
-        subtext:
-          "Empress understands even very nuanced situations. It listens, asks questions, and supports without judging.",
-      },
-      {
-        component: <StatisticsMockup />,
-        heading: "Overcome Challenge",
-        subtext: "Our study shows that regular conversations with Empress can improve mental and emotional well-being.",
-      },
-      {
-        component: <PrivacyMockup />,
-        heading: "Confide your secrets",
-        subtext:
-          "Chat without revealing your real identity. You can delete your chat history at any time, leaving no trace on our servers.",
-      },
-    ]
-
-    const currentScreen = onboardingScreens[onboardingStep]
-
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <div className="flex-1 flex flex-col justify-center p-4">
-          <div className="max-w-md mx-auto w-full">
-            {/* Image Section - Top and Center */}
-            <div className="flex justify-center mb-8">{currentScreen.component}</div>
-
-            {/* Content Section - Properly Spaced */}
-            <div className="text-center space-y-6">
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900">{currentScreen.heading}</h2>
-                <p className="text-gray-600 leading-relaxed px-4">{currentScreen.subtext}</p>
-              </div>
-
-              <Button
-                onClick={nextOnboardingStep}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                size="lg"
-              >
-                {onboardingStep === 2 ? "Get Started" : "Continue"}
-              </Button>
-
-              <div className="flex justify-center space-x-2 pt-4">
-                {onboardingScreens.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      index === onboardingStep ? "bg-gray-900" : "bg-gray-300"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+      <div className="w-full h-screen bg-white flex flex-col">
+        {onboardingStep === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto">
+            <ChatInterfaceMockup />
+            <h1 className="text-xl font-bold text-gray-900 mt-4 text-center">Cope with anxiety</h1>
+            <p className="text-sm text-gray-600 text-center mt-2 leading-relaxed">
+              Empress understands even very nuanced situations. It listens, asks questions, and supports without
+              judging.
+            </p>
           </div>
+        )}
+        {onboardingStep === 1 && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto">
+            <StatisticsMockup />
+            <h1 className="text-xl font-bold text-gray-900 mt-4 text-center">Overcome Challenge</h1>
+            <p className="text-sm text-gray-600 text-center mt-2 leading-relaxed">
+              Our study shows that regular conversations with Empress can improve mental and emotional well-being.
+            </p>
+          </div>
+        )}
+        {onboardingStep === 2 && (
+          <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto">
+            <PrivacyMockup />
+            <h1 className="text-xl font-bold text-gray-900 mt-4 text-center">Confide your secrets</h1>
+            <p className="text-sm text-gray-600 text-center mt-2 leading-relaxed">
+              Chat without revealing your real identity. You can delete your chat history at any time, leaving no trace.
+            </p>
+          </div>
+        )}
+        <div className="flex gap-2 justify-center p-4 flex-shrink-0">
+          {[0, 1, 2].map((step) => (
+            <div
+              key={step}
+              className={`w-2 h-2 rounded-full ${step === onboardingStep ? "bg-purple-800" : "bg-gray-300"}`}
+            />
+          ))}
+        </div>
+        <div className="p-4 bg-white border-t border-gray-200 flex-shrink-0">
+          <Button
+            onClick={nextOnboardingStep}
+            className="w-full bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 hover:from-purple-950 hover:via-purple-900 hover:to-indigo-950 text-white"
+          >
+            {onboardingStep === 2 ? "Get Started" : "Continue"}
+          </Button>
         </div>
       </div>
     )
   }
 
-  if (showResults && recommendations) {
+  if (isAssessmentComplete && recommendations) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <div className="max-w-2xl mx-auto">
-          {/* Welcome Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-light text-gray-900 mb-3">Assessment Complete!</h1>
-            <p className="text-gray-600 mb-8">Your personalized wellness plan is ready</p>
-
-            <Button
-              onClick={startOnboarding}
-              className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 mb-8"
-              size="lg"
-            >
-              Continue to App
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Completion Card */}
-          <Card className="mb-8 border border-gray-100 shadow-sm bg-white">
-            <CardHeader className="text-center pb-6">
-              <div className="flex items-center justify-center mb-4">
-                <CheckCircle className="h-12 w-12 text-gray-700" />
-              </div>
-              <CardTitle className="text-2xl font-light text-gray-900 mb-2">Ready to Begin</CardTitle>
-              <CardDescription className="text-gray-600">
-                Your wellness plan is waiting for you in the app
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <div className="text-center">
-            <Button
-              onClick={retakeAssessment}
-              variant="outline"
-              className="border border-gray-300 hover:bg-gray-50 px-8 py-3 rounded-lg bg-transparent"
-              size="lg"
-            >
-              Start New Assessment
-            </Button>
-          </div>
+      <div className="w-full min-h-screen bg-white flex flex-col p-4 pb-20">
+        <div className="flex-1 flex flex-col items-center justify-center text-center">
+          <CheckCircle className="w-12 h-12 text-gray-400 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Empress Wellness is now personalized for you</h1>
+          <p className="text-sm text-gray-600 mb-8">Explore features that support your wellness journey</p>
+          <Button
+            onClick={startOnboarding}
+            className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 hover:from-purple-950 hover:via-purple-900 hover:to-indigo-950 text-white"
+          >
+            Explore Features
+          </Button>
         </div>
       </div>
     )
   }
+
+  // Questionnaire rendering
+  const question = questions[currentQuestion]
+  const isAnswered = answers[question.id] !== undefined && answers[question.id] !== null
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Simple Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-light text-gray-900 mb-3">Empress Wellness</h1>
-          <p className="text-gray-600">A personalized approach to your wellness journey</p>
-        </div>
+    <div className="w-full min-h-screen bg-white flex flex-col p-4 pb-20">
+      <div className="mb-4">
+        <h1 className="text-xl font-bold text-gray-900 mb-4">Menopause Assessment</h1>
+        <Progress value={((currentQuestion + 1) / questions.length) * 100} className="h-1 bg-gray-200" />
+        <p className="text-xs text-gray-500 mt-2">
+          Question {currentQuestion + 1} of {questions.length}
+        </p>
+      </div>
 
-        <Card className="border border-gray-100 shadow-sm bg-white">
-          <CardHeader className="pb-6">
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-sm text-gray-500">
-                Question {currentQuestion + 1} of {questions.length}
-              </span>
-              <span className="text-sm text-gray-500">{Math.round(progress)}% Complete</span>
-            </div>
-
-            <div className="mb-6">
-              <Progress value={progress} className="h-2 bg-gray-100" />
-            </div>
-
-            <CardTitle className="text-xl font-medium text-gray-900 leading-relaxed">{currentQ.question}</CardTitle>
+      <div className="flex-1 overflow-y-auto mb-4">
+        <Card className="w-full bg-white border-gray-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-gray-900">{question.question}</CardTitle>
           </CardHeader>
-
-          <CardContent className="pb-8">
-            {currentQ.type === "radio" ? (
+          <CardContent className="space-y-2">
+            {question.type === "radio" ? (
               <RadioGroup
-                value={(answers[currentQ.id] as string) || ""}
-                onValueChange={(value) => handleRadioAnswer(currentQ.id, value)}
-                className="space-y-3"
+                value={answers[question.id] as string}
+                onValueChange={(value) => handleRadioAnswer(question.id, value)}
               >
-                {currentQ.options.map((option, index) => (
-                  <div key={option.value} className="group">
-                    <div
-                      className={`flex items-center space-x-3 p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
-                        answers[currentQuestion.id] === option.value
-                          ? "border-gray-400 bg-gray-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
-                      onClick={() => handleRadioAnswer(currentQ.id, option.value)}
-                    >
-                      <RadioGroupItem
-                        value={option.value}
-                        id={option.value}
-                        className="border-gray-300 text-gray-900 pointer-events-none"
-                      />
+                {question.options.map((option) => (
+                  <div
+                    key={option.value}
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                      answers[question.id] === option.value
+                        ? "border-purple-800 bg-purple-50"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                    onClick={() => handleRadioAnswer(question.id, option.value)}
+                  >
+                    <div className="flex items-start gap-2">
+                      <RadioGroupItem value={option.value} id={option.value} className="mt-1 pointer-events-none" />
                       <div className="flex-1 pointer-events-none">
-                        <Label htmlFor={option.value} className="cursor-pointer text-gray-900 font-medium block">
+                        <label htmlFor={option.value} className="text-sm font-medium text-gray-900 cursor-pointer">
                           {option.label}
-                        </Label>
+                        </label>
                         {option.description && <p className="text-xs text-gray-500 mt-1">{option.description}</p>}
                       </div>
                     </div>
@@ -699,34 +621,33 @@ export default function MenopauseQuestionnaire() {
                 ))}
               </RadioGroup>
             ) : (
-              <div className="space-y-3">
-                {currentQ.options.map((option, index) => (
-                  <div key={option.value} className="group">
-                    <div
-                      className={`flex items-center space-x-3 p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
-                        Array.isArray(answers[currentQ.id]) && (answers[currentQ.id] as string[]).includes(option.value)
-                          ? "border-gray-400 bg-gray-50"
-                          : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
-                      onClick={() => {
-                        const isChecked =
-                          Array.isArray(answers[currentQ.id]) &&
-                          (answers[currentQ.id] as string[]).includes(option.value)
-                        handleCheckboxAnswer(currentQ.id, option.value, !isChecked)
-                      }}
-                    >
+              <div className="space-y-2">
+                {question.options.map((option) => (
+                  <div
+                    key={option.value}
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                      (answers[question.id] as string[])?.includes(option.value)
+                        ? "border-purple-800 bg-purple-50"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                    onClick={() =>
+                      handleCheckboxAnswer(
+                        question.id,
+                        option.value,
+                        !(answers[question.id] as string[])?.includes(option.value),
+                      )
+                    }
+                  >
+                    <div className="flex items-start gap-2">
                       <Checkbox
-                        id={option.value}
-                        checked={
-                          Array.isArray(answers[currentQ.id]) &&
-                          (answers[currentQ.id] as string[]).includes(option.value)
+                        checked={(answers[question.id] as string[])?.includes(option.value) || false}
+                        onCheckedChange={(checked) =>
+                          handleCheckboxAnswer(question.id, option.value, checked as boolean)
                         }
-                        className="border-gray-300 text-gray-900 pointer-events-none"
+                        className="mt-1 pointer-events-none"
                       />
                       <div className="flex-1 pointer-events-none">
-                        <Label htmlFor={option.value} className="cursor-pointer text-gray-900 font-medium block">
-                          {option.label}
-                        </Label>
+                        <label className="text-sm font-medium text-gray-900 cursor-pointer">{option.label}</label>
                         {option.description && <p className="text-xs text-gray-500 mt-1">{option.description}</p>}
                       </div>
                     </div>
@@ -734,38 +655,28 @@ export default function MenopauseQuestionnaire() {
                 ))}
               </div>
             )}
-
-            <div className="flex justify-between mt-10">
-              <Button
-                variant="outline"
-                onClick={prevQuestion}
-                disabled={currentQuestion === 0}
-                className="flex items-center gap-2 px-6 py-3 border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg bg-transparent"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Previous
-              </Button>
-
-              <Button
-                onClick={nextQuestion}
-                disabled={!isAnswered}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                {currentQuestion === questions.length - 1 ? (
-                  <>
-                    Get Results
-                    <Sparkles className="h-4 w-4" />
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="flex gap-2 flex-shrink-0">
+        <Button
+          onClick={prevQuestion}
+          disabled={currentQuestion === 0}
+          variant="outline"
+          className="flex-1 border-gray-300 text-gray-700 text-sm h-10 bg-transparent"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <Button
+          onClick={nextQuestion}
+          disabled={!isAnswered}
+          className="flex-1 bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 hover:from-purple-950 hover:via-purple-900 hover:to-indigo-950 text-white text-sm h-10"
+        >
+          {currentQuestion === questions.length - 1 ? "Complete" : "Next"}
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
       </div>
     </div>
   )

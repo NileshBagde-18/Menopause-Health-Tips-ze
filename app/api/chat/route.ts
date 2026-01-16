@@ -4,6 +4,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
 
     if (!messages || !Array.isArray(messages)) {
+      console.error("[v0] Invalid messages format received:", { messages, type: typeof messages })
       throw new Error("Invalid messages format")
     }
 
