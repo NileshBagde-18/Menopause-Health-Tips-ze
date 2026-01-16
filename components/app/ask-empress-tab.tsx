@@ -12,44 +12,42 @@ interface Message {
   timestamp: Date
 }
 
-// Typing animation component
 const TypingIndicator = () => {
   return (
-    <div className="flex items-center gap-1">
-      <div className="flex gap-1">
-        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
-        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
-        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+    <div className="flex items-center gap-1.5">
+      <div className="flex gap-1.5">
+        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
       </div>
     </div>
   )
 }
 
-// Helper function to format text with basic markdown
 const formatMessage = (text: string) => {
   const lines = text.split("\n")
   return (
-    <div className="space-y-1 text-sm">
+    <div className="space-y-2 text-sm leading-relaxed">
       {lines.map((line, index) => {
         if (line.trim().startsWith("•")) {
           return (
-            <div key={index} className="flex items-start gap-2 ml-4">
-              <span className="text-purple-500 font-bold">•</span>
-              <span className="text-gray-700">{line.trim().substring(1).trim()}</span>
+            <div key={index} className="flex items-start gap-2.5 ml-2">
+              <span className="text-primary font-semibold flex-shrink-0 mt-0.5">•</span>
+              <span className="text-card-foreground">{line.trim().substring(1).trim()}</span>
             </div>
           )
         }
         if (line.includes("**")) {
           const parts = line.split("**")
           return (
-            <div key={index} className={parts.length > 1 ? "font-semibold text-gray-900 mt-2 mb-1" : ""}>
+            <div key={index} className={parts.length > 1 ? "font-semibold text-card-foreground mt-2.5 mb-1.5" : ""}>
               {parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part))}
             </div>
           )
         }
-        if (line.trim() === "") return <div key={index} className="h-2" />
+        if (line.trim() === "") return <div key={index} className="h-1.5" />
         return (
-          <div key={index} className="text-gray-700">
+          <div key={index} className="text-card-foreground">
             {line}
           </div>
         )
@@ -99,8 +97,8 @@ export function AskEmpressTab() {
 
       if (!response.ok) throw new Error("API error")
 
-      const data = await response.json()
-      const typingDuration = Math.min(Math.max(3000, data.response.length * 30), 8000)
+      const data = await response.text()
+      const typingDuration = Math.min(Math.max(3000, data.length * 30), 8000)
 
       setTimeout(() => {
         setMessages((prev) => [
@@ -108,7 +106,7 @@ export function AskEmpressTab() {
           {
             id: (Date.now() + 1).toString(),
             role: "assistant",
-            content: data.response,
+            content: data,
             timestamp: new Date(),
           },
         ])
@@ -135,14 +133,18 @@ export function AskEmpressTab() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full bg-background">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3.5 flex flex-col">
         {messages.map((message) => (
-          <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+          <div
+            key={message.id}
+            className={`flex animate-slide-up ${message.role === "user" ? "justify-end" : "justify-start"}`}
+          >
             <div
-              className={`max-w-xs md:max-w-md px-4 py-2 rounded-lg ${
-                message.role === "user" ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-900"
+              className={`max-w-xs px-4 py-2.5 rounded-xl premium-transition ${
+                message.role === "user"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-card border border-border text-card-foreground shadow-sm"
               }`}
             >
               {formatMessage(message.content)}
@@ -150,23 +152,22 @@ export function AskEmpressTab() {
           </div>
         ))}
         {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 px-4 py-3 rounded-lg">
+          <div className="flex justify-start animate-slide-up">
+            <div className="bg-card border border-border px-4 py-3 rounded-xl shadow-sm">
               <TypingIndicator />
             </div>
           </div>
         )}
       </div>
 
-      {/* Suggested Questions or Input */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="px-3 py-4 border-t border-border bg-background">
         {messages.length === 1 && !isTyping && (
           <div className="grid grid-cols-1 gap-2 mb-4">
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestedQuestion(question)}
-                className="text-left text-sm p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200"
+                className="text-left text-xs font-medium p-3 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border premium-transition"
               >
                 {question}
               </button>
@@ -174,7 +175,6 @@ export function AskEmpressTab() {
           </div>
         )}
 
-        {/* Input Form */}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
@@ -182,13 +182,13 @@ export function AskEmpressTab() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={isTyping ? "Empress is typing..." : "Ask me anything..."}
             disabled={isLoading || isTyping}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 disabled:bg-gray-50"
+            className="flex-1 px-4 py-2.5 border border-border rounded-xl text-sm bg-card text-card-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-background disabled:bg-muted premium-transition"
           />
           <Button
             type="submit"
             disabled={!input.trim() || isLoading || isTyping}
             size="sm"
-            className="bg-purple-600 hover:bg-purple-700 h-10 w-10 p-0"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 w-10 p-0 rounded-xl premium-transition shadow-sm"
           >
             <Send className="w-4 h-4" />
           </Button>
